@@ -10,8 +10,10 @@ namespace CandleInTheWind.Controllers
     {
         private readonly string EMAIL = "admin@gmail.com";
         private readonly string PASSWORD = "admin69";
-        public AuthenticationController()
+        private readonly IDistributedCache _cache;
+        public AuthenticationController(IDistributedCache cache)
         {
+            _cache = cache;
         }
 
         [HttpGet]
@@ -27,7 +29,7 @@ namespace CandleInTheWind.Controllers
         {
             if(account.Email.Equals(EMAIL) && account.Password.Equals(PASSWORD))
             {
-                //_cache.SetString("login_admin", "admin");
+                _cache.SetString("login_admin", "admin");
                 //HttpContext.Session.SetString("login_admin", "admin");
                 return RedirectToActionPermanent("Index", "Home");
             }
@@ -36,7 +38,7 @@ namespace CandleInTheWind.Controllers
         }
         public IActionResult Logout()
         {
-            //_cache.Remove("login_admin");
+            _cache.Remove("login_admin");
             //HttpContext.Session.Remove("login_admin");
             return RedirectToActionPermanent("Login");
         }

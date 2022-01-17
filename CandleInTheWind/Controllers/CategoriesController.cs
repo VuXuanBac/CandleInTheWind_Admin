@@ -13,13 +13,13 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace CandleInTheWind.Controllers
 {
-    public class CategoriesController : Controller
+    public class CategoriesController : BaseController
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _hosting;
 
-
-        public CategoriesController(ApplicationDbContext context, IWebHostEnvironment hosting)
+        public CategoriesController(IDistributedCache cache, ApplicationDbContext context, IWebHostEnvironment hosting)
+            : base(cache)
         {
             _context = context;
             _hosting = hosting;
@@ -27,6 +27,8 @@ namespace CandleInTheWind.Controllers
         // GET: Categories
         public async Task<IActionResult> Index(int page = 1, string search = "", Status status = Status.None, string message = "")
         {
+            if (HasNotSignIn())
+                return RedirectToAction("Login", "Authentication", new { message = "Fail!"});
             IQueryable<Category> categories = _context.Categories;
             if (!String.IsNullOrWhiteSpace(search))
             {
@@ -50,6 +52,8 @@ namespace CandleInTheWind.Controllers
         // GET: Categories/Create
         public IActionResult Create()
         {
+            if (HasNotSignIn())
+                return RedirectToAction("Login", "Authentication", new { message = "Fail!" });
             return PartialView("_Create");
         }
 
@@ -60,6 +64,8 @@ namespace CandleInTheWind.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name")] Category category)
         {
+            if (HasNotSignIn())
+                return RedirectToAction("Login", "Authentication", new { message = "Fail!" });
             string mess;
             if (ModelState.IsValid)
             {
@@ -85,6 +91,8 @@ namespace CandleInTheWind.Controllers
         // GET: Categories/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            if (HasNotSignIn())
+                return RedirectToAction("Login", "Authentication", new { message = "Fail!" });
             if (id == null)
             {
                 return NotFound();
@@ -105,6 +113,8 @@ namespace CandleInTheWind.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Category category)
         {
+            if (HasNotSignIn())
+                return RedirectToAction("Login", "Authentication", new { message = "Fail!" });
             if (category == null || id != category.Id)
             {
                 return NotFound();
@@ -148,6 +158,8 @@ namespace CandleInTheWind.Controllers
         // POST: Categories/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            if (HasNotSignIn())
+                return RedirectToAction("Login", "Authentication", new { message = "Fail!" });
             var category = await _context.Categories.FindAsync(id);
             var pathList = _context.Products.Where(p => p.CategoryId == id).Select(p => p.ImageUrl);
             foreach(var url in pathList)

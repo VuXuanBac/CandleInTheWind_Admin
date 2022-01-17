@@ -10,15 +10,15 @@ using CandleInTheWind.Models;
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.AspNetCore.Authorization;
 
 namespace CandleInTheWind.Controllers
 {
-    public class ProductsController : Controller
+    public class ProductsController : BaseController
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _hosting;
-        public ProductsController(ApplicationDbContext context, IWebHostEnvironment hosting)
+        public ProductsController(IDistributedCache cache, ApplicationDbContext context, IWebHostEnvironment hosting)
+            : base(cache)
         {
             _context = context;
             _hosting = hosting;
@@ -27,7 +27,8 @@ namespace CandleInTheWind.Controllers
         // GET: Products
         public async Task<IActionResult> Index(int page = 1, string search = "", Status status = Status.None)
         {
-            //var products_categories = _context.Products.Include(p => p.Category);
+            if (HasNotSignIn())
+                return RedirectToAction("Login", "Authentication", new { message = "Fail!" });
             IQueryable<Product> products = _context.Products.Include(p => p.Category);
             if (!String.IsNullOrWhiteSpace(search))
             {
@@ -50,6 +51,8 @@ namespace CandleInTheWind.Controllers
         // GET: Products/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            if (HasNotSignIn())
+                return RedirectToAction("Login", "Authentication", new { message = "Fail!" });
             if (id == null)
             {
                 return NotFound();
@@ -69,6 +72,8 @@ namespace CandleInTheWind.Controllers
         // GET: Products/Create
         public IActionResult Create(Status status = Status.None)
         {
+            if (HasNotSignIn())
+                return RedirectToAction("Login", "Authentication", new { message = "Fail!" });
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
             ViewBag.CreateStatus = status;
             return View();
@@ -81,6 +86,8 @@ namespace CandleInTheWind.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Description,Price,Stock,Image,CategoryId")] Product product)
         {
+            if (HasNotSignIn())
+                return RedirectToAction("Login", "Authentication", new { message = "Fail!" });
             if (ModelState.IsValid)
             {
                 product.ImageUrl = UploadImage(product);
@@ -96,6 +103,8 @@ namespace CandleInTheWind.Controllers
         // GET: Products/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            if (HasNotSignIn())
+                return RedirectToAction("Login", "Authentication", new { message = "Fail!" });
             if (id == null)
             {
                 return NotFound();
@@ -117,6 +126,8 @@ namespace CandleInTheWind.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Price,Stock,ImageUrl,Image,CategoryId")] Product product)
         {
+            if (HasNotSignIn())
+                return RedirectToAction("Login", "Authentication", new { message = "Fail!" });
             if (product == null || id != product.Id)
             {
                 return NotFound();
@@ -158,6 +169,8 @@ namespace CandleInTheWind.Controllers
         // POST: Products/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            if (HasNotSignIn())
+                return RedirectToAction("Login", "Authentication", new { message = "Fail!" });
             var product = await _context.Products.FindAsync(id);
             if (product == null)
                 return NotFound();

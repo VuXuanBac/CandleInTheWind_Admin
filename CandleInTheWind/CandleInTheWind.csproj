@@ -21,10 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Controllers\BaseController.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Remove="Views\Home\TestPaging.cshtml" />
     <Content Remove="Views\Home\TestPopup.cshtml" />
     <Content Remove="Views\Products\Details.cshtml" />

@@ -1,19 +1,18 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace CandleInTheWind.Controllers
 {
     public class BaseController : Controller
     {
-        public BaseController(Microsoft.Extensions.Caching.Distributed.IDistributedCache cache)
+        private readonly IDistributedCache _cache;
+        public BaseController(IDistributedCache cache)
         {
-            if(cache.GetString("login_admin") == null)
-            {
-            }
+            _cache = cache;
+        }
+        protected bool HasNotSignIn()
+        {
+            return (_cache.GetString("login_admin") == null);
         }
     }
 }
